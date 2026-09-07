@@ -38,18 +38,30 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-white transition-colors duration-500 selection:bg-[#0066cc] selection:text-white">
-      {/* 3D Phone Scene (Fixed background layer) */}
-      <PhoneScene scrollProgress={scrollProgress} />
-
       {/* Navigation */}
       <Navbar />
 
       {/* Main Content Flow */}
       <main className="relative z-20">
-        <HeroSection onExploreClick={handleExploreClick} />
-        <FeatureStories />
-        <DubaiNetworkStats />
-        <DownloadCTA />
+        <div className="relative w-full">
+          {/* Sticky Phone Scene */}
+          <div className="sticky top-0 h-screen w-full pointer-events-none z-40">
+            <PhoneScene scrollProgress={scrollProgress} />
+          </div>
+          
+          {/* Content layered on top */}
+          <div className="-mt-[100vh] relative z-10 pointer-events-none">
+            <div className="pointer-events-auto">
+              <HeroSection onExploreClick={handleExploreClick} />
+              <FeatureStories />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-20 bg-[#f5f5f7] dark:bg-[#000000]">
+          <DubaiNetworkStats />
+          <DownloadCTA />
+        </div>
       </main>
 
       {/* Footer */}
