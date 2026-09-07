@@ -34,7 +34,11 @@ export class PhoneScreenRenderer {
     ctx.save();
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Background (iOS dark / light theme depending on state)
+    // Apply screen clipping with rounded corners
+    this.roundRect(ctx, 0, 0, w, h, 200);
+    ctx.clip();
+
+    // 1. Background (iOS dark theme)
     ctx.fillStyle = '#0f1015';
     ctx.fillRect(0, 0, w, h);
 

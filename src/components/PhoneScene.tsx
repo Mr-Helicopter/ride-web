@@ -48,6 +48,7 @@ const PhoneModel: React.FC<PhoneModelProps> = ({ scrollProgress }) => {
           mesh.material = new THREE.MeshBasicMaterial({
             map: canvasTexture,
             toneMapped: false,
+            transparent: true,
           });
         }
       }
@@ -175,7 +176,7 @@ const PhoneModel: React.FC<PhoneModelProps> = ({ scrollProgress }) => {
       {/* Auxiliary crisp screen mesh */}
       <mesh position={[0, 0, -0.415]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[6.66, 14.5]} />
-        <meshBasicMaterial map={canvasTexture} toneMapped={false} />
+        <meshBasicMaterial map={canvasTexture} toneMapped={false} transparent={true} />
       </mesh>
     </group>
   );
