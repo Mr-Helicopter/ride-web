@@ -86,78 +86,81 @@ const PhoneModel: React.FC<PhoneModelProps> = ({ scrollProgress }) => {
     });
     canvasTexture.needsUpdate = true;
 
-    // Smooth camera & model choreography using scrollProgress
+    // Smooth camera & model choreography using scroll-based keyframes (Option B)
     if (groupRef.current) {
       const g = groupRef.current;
-
-      // Base 25% smaller scale multipliers (0.75x)
-      let targetX = 1.35;
-      let targetY = -0.15;
-      let targetZ = 0;
-      let rotX = 0.08;
-      let rotY = Math.PI - 0.38; // Model inverted: PI flips front to face camera
-      let rotZ = -0.04;
-      let targetScale = 0.315; // 0.42 * 0.75
-
-      // Responsive adjustments for mobile
       const isMobile = window.innerWidth < 768;
-      if (isMobile) {
-        targetX = 0;
-        targetY = 0.5;
-        targetScale = 0.24;
-      }
 
-      if (scrollProgress < 0.18) {
-        // Hero stage: angled nicely on the right side
-        const p = scrollProgress / 0.18;
-        targetX = isMobile ? 0 : 1.45 - p * 0.2;
-        targetY = isMobile ? 0.5 : -0.15;
-        rotY = Math.PI - 0.38 + p * 0.15;
-        rotX = 0.08 - p * 0.04;
-        rotZ = -0.04;
-        targetScale = isMobile ? 0.24 : 0.315;
-      } else if (scrollProgress < 0.48) {
-        // Feature 1 - Wrong Bus Detection: camera tracks close to Dynamic Island
-        const p = (scrollProgress - 0.18) / 0.30;
-        targetX = isMobile ? 0.4 : 1.6 - p * 0.2; // Shifted nicely to the right
-        targetY = -1.5 - p * 0.25; // Move phone down so top Dynamic Island is centered
-        targetZ = 1.6 + p * 0.3;  // Zoom in
-        rotY = Math.PI - 0.12 - p * 0.08;
-        rotX = 0.18 + p * 0.04;
-        rotZ = 0.02;
-        targetScale = isMobile ? 0.36 : 0.435; // 0.58 * 0.75
-      } else if (scrollProgress < 0.74) {
-        // Feature 2 - Deboard Alarm: straight facing forward on right column
-        const p = (scrollProgress - 0.48) / 0.26;
-        targetX = isMobile ? 0.3 : 1.45 - p * 0.1;
-        targetY = -0.05;
-        targetZ = 0.2;
-        rotY = Math.PI; // Straight facing forward
-        rotX = 0.02 * (1 - p);
-        rotZ = 0;
-        targetScale = isMobile ? 0.26 : 0.338; // 0.45 * 0.75
+      // Define the exact still "spots" for each feature
+      const spotsDesk = [
+        { x: 1.35, y: -0.15, z: 0, rx: 0.08, ry: Math.PI - 0.38, rz: -0.04, scale: 0.315 }, // Hero
+        { x: 1.50, y: -1.60, z: 1.7, rx: 0.20, ry: Math.PI - 0.16, rz: 0.02, scale: 0.435 }, // Feature 1 (Wrong Bus)
+        { x: 1.40, y: -0.05, z: 0.2, rx: 0.01, ry: Math.PI, rz: 0.00, scale: 0.338 }, // Feature 2 (Alarm)
+        { x: -1.60, y: -0.08, z: 0, rx: 0.06, ry: Math.PI + 0.24, rz: 0.02, scale: 0.330 }  // Feature 3 (Summary)
+      ];
+
+      const spotsMob = [
+        { x: 0.00, y: 0.50, z: 0, rx: 0.08, ry: Math.PI - 0.38, rz: -0.04, scale: 0.240 },
+        { x: 0.30, y: -1.60, z: 1.7, rx: 0.20, ry: Math.PI - 0.16, rz: 0.02, scale: 0.360 },
+        { x: 0.25, y: -0.05, z: 0.2, rx: 0.01, ry: Math.PI, rz: 0.00, scale: 0.260 },
+        { x: -0.35, y: -0.08, z: 0, rx: 0.06, ry: Math.PI + 0.24, rz: 0.02, scale: 0.250 }
+      ];
+
+      const spots = isMobile ? spotsMob : spotsDesk;
+
+      // Map spots to scroll progress ranges
+      // e.g. from 0 to 0.15, stay at Hero. From 0.15 to 0.25, transition to F1.
+      const kfs = [
+        { s: 0.00, ...spots[0] },
+        { s: 0.15, ...spots[0] }, // End Hero rest
+
+        { s: 0.25, ...spots[1] }, // Start F1 rest
+        { s: 0.40, ...spots[1] }, // End F1 rest
+
+        { s: 0.50, ...spots[2] }, // Start F2 rest
+        { s: 0.65, ...spots[2] }, // End F2 rest
+
+        { s: 0.75, ...spots[3] }, // Start F3 rest
+        { s: 1.00, ...spots[3] }  // End F3 rest
+      ];
+
+      let targetX = 0, targetY = 0, targetZ = 0, rotX = 0, rotY = 0, rotZ = 0, targetScale = 0;
+
+      if (scrollProgress <= kfs[0].s) {
+        ({ x: targetX, y: targetY, z: targetZ, rx: rotX, ry: rotY, rz: rotZ, scale: targetScale } = kfs[0]);
+      } else if (scrollProgress >= kfs[kfs.length - 1].s) {
+        ({ x: targetX, y: targetY, z: targetZ, rx: rotX, ry: rotY, rz: rotZ, scale: targetScale } = kfs[kfs.length - 1]);
       } else {
-        // Feature 3 - Trip Summary: stays permanently locked in place even with further scrolling
-        targetX = isMobile ? -0.35 : -1.60;
-        targetY = -0.08;
-        targetZ = 0;
-        rotY = Math.PI + 0.24;
-        rotX = 0.06;
-        rotZ = 0.02;
-        targetScale = isMobile ? 0.25 : 0.33;
+        for (let i = 0; i < kfs.length - 1; i++) {
+          const k1 = kfs[i];
+          const k2 = kfs[i + 1];
+          if (scrollProgress >= k1.s && scrollProgress <= k2.s) {
+            const p = (scrollProgress - k1.s) / (k2.s - k1.s);
+            // Ease-in-out curve for buttery scroll transitions
+            const easeP = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+            targetX = THREE.MathUtils.lerp(k1.x, k2.x, easeP);
+            targetY = THREE.MathUtils.lerp(k1.y, k2.y, easeP);
+            targetZ = THREE.MathUtils.lerp(k1.z, k2.z, easeP);
+            rotX = THREE.MathUtils.lerp(k1.rx, k2.rx, easeP);
+            rotY = THREE.MathUtils.lerp(k1.ry, k2.ry, easeP);
+            rotZ = THREE.MathUtils.lerp(k1.rz, k2.rz, easeP);
+            targetScale = THREE.MathUtils.lerp(k1.scale, k2.scale, easeP);
+            break;
+          }
+        }
       }
 
-      // Smooth lerp for buttery motion
-      g.position.x = THREE.MathUtils.lerp(g.position.x, targetX, 0.08);
-      g.position.y = THREE.MathUtils.lerp(g.position.y, targetY, 0.08);
-      g.position.z = THREE.MathUtils.lerp(g.position.z, targetZ, 0.08);
+      // Fast lerp coefficient so it responds snappily to scroll, with slight trailing smoothness
+      g.position.x = THREE.MathUtils.lerp(g.position.x, targetX, 0.12);
+      g.position.y = THREE.MathUtils.lerp(g.position.y, targetY, 0.12);
+      g.position.z = THREE.MathUtils.lerp(g.position.z, targetZ, 0.12);
 
-      g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, rotX, 0.08);
-      g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, rotY, 0.08);
-      g.rotation.z = THREE.MathUtils.lerp(g.rotation.z, rotZ, 0.08);
+      g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, rotX, 0.12);
+      g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, rotY, 0.12);
+      g.rotation.z = THREE.MathUtils.lerp(g.rotation.z, rotZ, 0.12);
 
       const currentScale = g.scale.x;
-      const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.08);
+      const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.12);
       g.scale.set(newScale, newScale, newScale);
     }
   });
@@ -180,7 +183,7 @@ const PhoneModel: React.FC<PhoneModelProps> = ({ scrollProgress }) => {
 
 export const PhoneScene: React.FC<PhoneModelProps> = ({ scrollProgress }) => {
   return (
-    <div className="fixed inset-0 pointer-events-none z-40 w-full h-full">
+    <div className="w-full h-full pointer-events-none z-40">
       <Canvas
         camera={{ position: [0, 0, 8.5], fov: 42 }}
         gl={{
