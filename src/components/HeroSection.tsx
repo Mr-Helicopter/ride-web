@@ -80,8 +80,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           </div>
         </div>
 
-        {/* Right 3D Model Placeholder spacer for layout balance */}
-        <div className="lg:col-span-6 min-h-[380px] lg:min-h-[600px] pointer-events-none flex items-center justify-center">
+        {/* Right 3D Model Placeholder spacer for layout balance (desktop only) */}
+        <div className="hidden lg:flex lg:col-span-6 lg:min-h-[600px] pointer-events-none items-center justify-center">
           {/* Space occupied by 3D Three.js canvas in background */}
         </div>
       </div>

@@ -62,8 +62,8 @@ export const FeatureStories: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Spacer for 3D Model Dynamic Island Focus */}
-          <div className="lg:col-span-6 min-h-[420px] lg:min-h-[640px] pointer-events-none" />
+          {/* Right Spacer for 3D Model Dynamic Island Focus (desktop only) */}
+          <div className="hidden lg:block lg:col-span-6 lg:min-h-[640px] pointer-events-none" />
         </div>
       </section>
 
@@ -130,8 +130,8 @@ export const FeatureStories: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Spacer for 3D Phone Alarm View */}
-          <div className="lg:col-span-6 min-h-[420px] lg:min-h-[640px] pointer-events-none" />
+          {/* Right Spacer for 3D Phone Alarm View (desktop only) */}
+          <div className="hidden lg:block lg:col-span-6 lg:min-h-[640px] pointer-events-none" />
         </div>
       </section>
 
@@ -143,8 +143,8 @@ export const FeatureStories: React.FC = () => {
         className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-28 relative bg-gradient-to-b from-black/90 via-black/70 to-black/90 text-white border-t border-white/10"
       >
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left spacer for phone showcase angle */}
-          <div className="lg:col-span-6 order-2 lg:order-1 min-h-[420px] lg:min-h-[640px] pointer-events-none" />
+          {/* Left spacer for phone showcase angle (desktop only) */}
+          <div className="hidden lg:block lg:col-span-6 order-2 lg:order-1 lg:min-h-[640px] pointer-events-none" />
 
           {/* Right Text Column */}
           <div className="lg:col-span-6 order-1 lg:order-2 space-y-6">

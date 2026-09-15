@@ -9,6 +9,16 @@ import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,13 +54,13 @@ export const App: React.FC = () => {
       {/* Main Content Flow */}
       <main className="relative z-20">
         <div className="relative w-full">
-          {/* Sticky Phone Scene */}
-          <div className="sticky top-0 h-screen w-full pointer-events-none z-40">
-            <PhoneScene scrollProgress={scrollProgress} />
+          {/* Sticky Phone Scene - Desktop only */}
+          <div className="hidden lg:block sticky top-0 h-screen w-full pointer-events-none z-40">
+            {isDesktop && <PhoneScene scrollProgress={scrollProgress} />}
           </div>
           
           {/* Content layered on top */}
-          <div className="-mt-[100vh] relative z-10 pointer-events-none">
+          <div className="lg:-mt-[100vh] relative z-10 pointer-events-none">
             <div className="pointer-events-auto">
               <HeroSection onExploreClick={handleExploreClick} />
               <FeatureStories />
